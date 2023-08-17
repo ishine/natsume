@@ -53,7 +53,7 @@ class Natsume(object):
         return mecab_features
 
 
-    def tex2njd(self, text):
+    def text2njd(self, text):
         """Get raw NJD features
         """
         njd_features = self._oj.get_njd_features(text)

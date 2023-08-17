@@ -218,15 +218,6 @@ void njd_set_accent_phrase(NJD * njd)
                }
             }
 
-         /* Extra Rule 01 「名詞」は「動詞」or「形容詞」に接続する場合に前にくってける */
-         /* 如果单词是名词且前一个单词是动词或形容词时，则chain flag设置为1 */
-         if (strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_MEISHI) == 0) {
-            if (strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_DOUSHI) == 0)
-               NJDNode_set_chain_flag(node, 1);
-            else if (strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_KEIYOUSHI) == 0)
-               NJDNode_set_chain_flag(node, 1);
-         }
-
          /* Rule 13 「名詞」の後に「動詞」or「形容詞」or「名詞,形容動詞語幹」がきたら別のアクセント句に */
          /* 如果单词是名词且前一个单词是动词、形容词或形容动词词干名词（悲惨 ヒサン），则单词的chain flag设置为0 */
          if (strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_MEISHI) == 0) {

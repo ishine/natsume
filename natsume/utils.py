@@ -147,39 +147,43 @@ def assign_accent(phonemes, acc, mode="romaji", upstep="ꜛ", downstep="ꜜ"):
         vowels = vowels_romaji
     elif mode == "ipa":
         vowels = vowels_ipa
-
-    acc = int(acc)  
+    # phonemes and accent of chained words are divided by |
+    phoneme_parts = phonemes.split("|")
+    acc_parts = acc.split("|")
     new_phonemes = ""
-    cur_mora = 0
-    i = 0
-    for phoneme in phonemes:
-        new_phonemes += phoneme
-        i += 1 # count current phonemes
-        if phoneme not in vowels:
-            # consonant
-            continue
-        cur_mora += 1
-        # the first mora
-        if cur_mora == 1:
-            if acc == 1:
-                # head-high
-                new_phonemes += downstep
-                break
-            elif acc == 0:
-                # flat
-                new_phonemes += upstep
-                break
-            else:
-                # middle-high or tail-high
-                new_phonemes += upstep
-                continue
-            
-        # for middle high and tail-high
-        if cur_mora == acc:
-            new_phonemes += downstep
 
-    # append the rest phonemes
-    new_phonemes += phonemes[i:]
+    for phoneme_part, acc_part in zip(phoneme_parts, acc_parts):
+        cur_mora = 0
+        acc_part = int(acc_part)
+        i = 0
+        for phoneme in phoneme_part:
+            new_phonemes += phoneme
+            i += 1 # count current phonemes
+            if phoneme not in vowels:
+                # consonant
+                continue
+            cur_mora += 1
+            # the first mora
+            if cur_mora == 1:
+                if acc_part == 1:
+                    # head-high
+                    new_phonemes += downstep
+                    break
+                elif acc_part == 0:
+                    # flat
+                    new_phonemes += upstep
+                    break
+                else:
+                    # middle-high or tail-high
+                    new_phonemes += upstep
+                    continue
+                
+            # for middle high and tail-high
+            if cur_mora == acc_part:
+                new_phonemes += downstep
+
+        # append the rest phonemes
+        new_phonemes += phoneme_part[i:]
 
     return new_phonemes
 
@@ -202,10 +206,30 @@ class MecabFeature(object):
         self._chain_rule = feature["chain_rule"]
 
     def _parse_acc_mora_size(self, acc_mora_size):
-        # acc/mora_size
-        acc, mora_size = acc_mora_size.split("/")
-        self._acc = acc
-        self._mora_size = mora_size
+        # NOTE: some words are already chained and registered in dictionary
+        # e.g. いえ:いえ 1/2:1/2
+        # Their acc/mora_size pairs are divided by :
+        pairs = acc_mora_size.split(":")   
+        acc = []
+        mora_size = 0
+
+        for pair in pairs:
+            # NOTE: some symbols don't have acc/mora_size pair
+            # They are resolved in NJD so for MeCab feature, we do the same thing here
+            if pair == "*": 
+                a = "0"
+                m = "0"
+            else:
+                # NOTE: some symbols have acc/mora_size pair but it's */*
+                a, m = pair.split("/")
+                if a == "*" or m == "*":
+                    a = "0"
+                    m = "0"
+            acc.append(a)
+            mora_size += int(m)
+
+        self._acc = "|".join(acc)
+        self._mora_size = str(mora_size)
 
     def feature(self):
         return self._feature
@@ -264,8 +288,8 @@ class NJDFeature(object):
         self._orig = feature["orig"]
         self._read = feature["read"]
         self._pron = feature["pron"]
-        self._acc = feature["acc"]
-        self._mora_size = feature["mora_size"]
+        self._acc = str(feature["acc"])
+        self._mora_size = str(feature["mora_size"])
         self._chain_rule = feature["chain_rule"]
         self._chain_flag = feature["chain_flag"]
     
@@ -324,7 +348,6 @@ class Token(object):
         self._acc = acc
         self._mora_size = mora_size
 
-    
     def surface(self):
         return self._surface
     
