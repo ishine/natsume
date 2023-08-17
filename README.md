@@ -81,6 +81,42 @@ print(" ".join(phonemes))
 teꜜNkiga iꜜikara , saꜛNpo shiꜛmashoꜜ: .
 ```
 
+## Tokenization
+
+```python
+from natsume import Natsume
+
+frontend = Natsume()
+
+text = "何の話をしているのかまったくわからない。"
+```
+
+**Word**
+
+Tokenize text in word level.
+
+```python
+tokens = frontend.tokenize(text, mode="word")
+print(" ".join([token.surface() for token in tokens]))
+```
+
+```
+何 の 話 を し て いる の か まったく わから ない 。
+```
+
+**Phrase**
+
+Tokenize text in (accent) phrase level.
+
+```python
+tokens = frontend.tokenize(text, mode="phrase")
+print(" ".join([token.surface() for token in tokens]))
+```
+
+```
+何の 話を して いるのか まったく わからない 。
+```
+
 ### MeCab Features
 
 Get intermediate [MeCab](https://taku910.github.io/mecab/) features.
