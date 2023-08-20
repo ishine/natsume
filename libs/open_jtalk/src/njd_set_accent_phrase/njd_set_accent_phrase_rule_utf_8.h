@@ -51,27 +51,44 @@
 
 NJD_SET_ACCENT_PHRASE_RULE_H_START;
 
-/*
-  Rule 01 デフォルトはくっつける
-  Rule 02 「名詞」の連続はくっつける
-  Rule 03 「形容詞」の後に「名詞」がきたら別のアクセント句に
-  Rule 04 「名詞,形容動詞語幹」の後に「名詞」がきたら別のアクセント句に
-  Rule 05 「動詞」の後に「形容詞」or「名詞」がきたら別のアクセント句に
-  Rule 06 「副詞」，「接続詞」，「連体詞」は単独のアクセント句に
-  Rule 07 「名詞,副詞可能」（すべて，など）は単独のアクセント句に
-  Rule 08 「助詞」or「助動詞」（付属語）は前にくっつける
-  Rule 09 「助詞」or「助動詞」（付属語）の後の「助詞」，「助動詞」以外（自立語）は別のアクセント句に
-  Rule 10 「*,接尾」の後の「名詞」は別のアクセント句に
-  Rule 11 「形容詞,非自立」は「動詞,連用*」or「形容詞,連用*」or「助詞,接続助詞,て」or「助詞,接続助詞,で」に接続する場合に前にくっつける
-  Rule 12 「動詞,非自立」は「動詞,連用*」or「名詞,サ変接続」に接続する場合に前にくっつける
-  Rule 13 「名詞」の後に「動詞」or「形容詞」or「名詞,形容動詞語幹」がきたら別のアクセント句に
-  Rule 14 「記号」は単独のアクセント句に
-  Rule 15 「接頭詞」は単独のアクセント句に
-  Rule 16 「*,*,*,姓」の後の「名詞」は別のアクセント句に
-  Rule 17 「名詞」の後の「*,*,*,名」は別のアクセント句に
-  Rule 18 「*,接尾」は前にくっつける
+/* 
+Rules that chain single words into accent phrases 
+General rules are appplied before specific ones. 
 */
 
+/* Level 1 (the most general)
+1-1  デフォルトは別のアクセント句に
+1-2  「名詞」の連続はくっつける
+1-3  「形容詞」の後に「名詞」がきたら別のアクセント句に
+1-4  「名詞,形容動詞語幹」の後に「名詞」がきたら別のアクセント句に
+1-5  「動詞」の後に「形容詞」or「名詞」がきたら別のアクセント句に
+1-6  「副詞」，「接続詞」，「連体詞」は単独のアクセント句に
+1-7  「名詞,副詞可能」（すべて，など）は単独のアクセント句に
+1-8  「助詞」or「助動詞」（付属語）は前にくっつける
+1-9  「助詞」or「助動詞」（付属語）の後の「助詞」，「助動詞」以外（自立語）は別のアクセント句に
+1-10 「*,接尾」の後の「名詞」は別のアクセント句に
+1-11 「形容詞,非自立」は「動詞,連用*」or「形容詞,連用*」に接続する場合に前にくっつける
+1-12 「動詞,非自立」は「動詞,連用*」or「名詞,サ変接続」に接続する場合に前にくっつける
+1-13 「名詞」の後に「動詞」or「形容詞」or「名詞,形容動詞語幹」がきたら別のアクセント句に
+1-14 「記号」は単独のアクセント句に
+1-15 「接頭詞」は単独のアクセント句に
+1-16 「*,*,*,姓」の後の「名詞」は別のアクセント句に
+1-17 「名詞」の後の「*,*,*,名」は別のアクセント句に
+1-18 「*,接尾」は前にくっつける
+*/
+
+/* Level 2 
+2-1  「名詞,非自立」は「動詞」or「形容詞」に接続する場合に前にくっつける
+2-2  「名詞,非自立」の後の「名詞,自立」は別のアクセント句に
+2-3  「フィラー」or「感動詞」の後の単語は別のアクセント句に
+2-4  「名詞」の後の「名詞,代名詞」は別のアクセント句に、「代名詞」の後の「名詞」は別のアクセント句に
+2-5  「名詞,サ変接続」or「名詞,形容動詞語幹」の後の「動詞,サ変＊」は前にくっつける
+*/
+
+/* surface */
+#define NJD_SET_ACCENT_PHRASE_CHOUON "ー"
+
+/* pos */
 #define NJD_SET_ACCENT_PHRASE_MEISHI "名詞"
 #define NJD_SET_ACCENT_PHRASE_KEIYOUSHI "形容詞"
 #define NJD_SET_ACCENT_PHRASE_DOUSHI "動詞"
@@ -81,18 +98,57 @@ NJD_SET_ACCENT_PHRASE_RULE_H_START;
 #define NJD_SET_ACCENT_PHRASE_JODOUSHI "助動詞"
 #define NJD_SET_ACCENT_PHRASE_JOSHI "助詞"
 #define NJD_SET_ACCENT_PHRASE_KIGOU "記号"
+#define NJD_SET_ACCENT_PHRASE_SETTOUSHI "接頭詞"
+#define NJD_SET_ACCENT_PHRASE_FILLER "フィラー"
+#define NJD_SET_ACCENT_PHRASE_KANDOUSHI "感動詞"
+
+/* pos group1 */
+#define NJD_SET_ACCENT_PHRASE_IPPAN "一般"
+#define NJD_SET_ACCENT_PHRASE_HIJIRITSU "非自立"
+#define NJD_SET_ACCENT_PHRASE_SAHEN_SETSUZOKU "サ変接続"
+#define NJD_SET_ACCENT_PHRASE_SETSUBI "接尾"
+#define NJD_SET_ACCENT_PHRASE_SETSUZOKUJOSHI "接続助詞"
+#define NJD_SET_ACCENT_PHRASE_SHUUJOSHI "終助詞"
+#define NJD_SET_ACCENT_PHRASE_JOSHIRUISETSUZOKU "助詞類接続"
+#define NJD_SET_ACCENT_PHRASE_DAIMEISHI "代名詞"
+#define NJD_SET_ACCENT_PHRASE_RENTAIKA "連体化"
+#define NJD_SET_ACCENT_PHRASE_FUKUJOSHI "副助詞"
+
+/* pos group2 */
 #define NJD_SET_ACCENT_PHRASE_KEIYOUDOUSHI_GOKAN "形容動詞語幹"
 #define NJD_SET_ACCENT_PHRASE_FUKUSHI_KANOU "副詞可能"
-#define NJD_SET_ACCENT_PHRASE_SETSUBI "接尾"
-#define NJD_SET_ACCENT_PHRASE_HIJIRITSU "非自立"
-#define NJD_SET_ACCENT_PHRASE_RENYOU "連用"
-#define NJD_SET_ACCENT_PHRASE_SETSUZOKUJOSHI "接続助詞"
-#define NJD_SET_ACCENT_PHRASE_SAHEN_SETSUZOKU "サ変接続"
-#define NJD_SET_ACCENT_PHRASE_TE "て"
-#define NJD_SET_ACCENT_PHRASE_DE "で"
-#define NJD_SET_ACCENT_PHRASE_SETTOUSHI "接頭詞"
+#define NJD_SET_ACCENT_PHRASE_INYOU "引用"
+
+/* pos group3 */
 #define NJD_SET_ACCENT_PHRASE_SEI "姓"
 #define NJD_SET_ACCENT_PHRASE_MEI "名"
+
+/* ctype */
+#define NJD_SET_ACCENT_PHRASE_SAHEN "サ変"
+
+/* cform */
+#define NJD_SET_ACCENT_PHRASE_RENYOU "連用"
+#define NJD_SET_ACCENT_PHRASE_GARUSETSUZOKU "ガル接続"
+
+/* orig */
+#define NJD_SET_ACCENT_PHRASE_SURU "する"
+#define NJD_SET_ACCENT_PHRASE_NARU "なる"
+#define NJD_SET_ACCENT_PHRASE_YARU "やる"
+#define NJD_SET_ACCENT_PHRASE_IU_1 "言う"
+#define NJD_SET_ACCENT_PHRASE_IU_2 "いう"
+#define NJD_SET_ACCENT_PHRASE_DOU "どう"
+#define NJD_SET_ACCENT_PHRASE_KOU "こう"
+#define NJD_SET_ACCENT_PHRASE_SOU "そう"
+#define NJD_SET_ACCENT_PHRASE_SUGIRU "すぎる"
+#define NJD_SET_ACCENT_PHRASE_TOUTEN "、"
+#define NJD_SET_ACCENT_PHRASE_KUTEN "。"
+#define NJD_SET_ACCENT_PHRASE_JA "じゃ"
+#define NJD_SET_ACCENT_PHRASE_IKERU "いける"
+#define NJD_SET_ACCENT_PHRASE_NAI "ない"
+
+/* other */
+#define NJD_SET_ACCENT_PHRASE_TE "て"
+#define NJD_SET_ACCENT_PHRASE_DE "で"
 
 NJD_SET_ACCENT_PHRASE_RULE_H_END;
 

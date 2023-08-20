@@ -103,23 +103,28 @@ void njd_set_accent_phrase(NJD * njd)
    for (node = njd->head->next; node != NULL; node = node->next) {
       /* 仅作用于词典中非连锁的词（绝大多数情况） */
       if (NJDNode_get_chain_flag(node) < 0) {
-         /* Rule 01 デフォルトはくっつける */
-         /* 没有适用规则的情况下，chain flag设置为1 */
+         
+         /*============================*/
+         /* Level 1 (the most general) */
+         /*============================*/
+
+         /* 1-1  「名詞」の連続はくっつける */
+         /* 没有适用规则的情况下，chain flag设置为0 */
          NJDNode_set_chain_flag(node, 1);
 
-         /* Rule 02 「名詞」の連続はくっつける */
+         /* 1-2  「名詞」の連続はくっつける */
          /* 如果单词的前一个单词都是名词，则单词的chain flag设置为1 */
          if (strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_MEISHI) == 0)
             if (strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_MEISHI) == 0)
                NJDNode_set_chain_flag(node, 1);
 
-         /* Rule 03 「形容詞」の後に「名詞」がきたら別のアクセント句に */
+         /* 1-3  「形容詞」の後に「名詞」がきたら別のアクセント句に */
          /* 如果单词是名词且前一个单词是形容词，则单词的chain flag设置为0 */
          if (strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_KEIYOUSHI) == 0)
             if (strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_MEISHI) == 0)
                NJDNode_set_chain_flag(node, 0);
 
-         /* Rule 04 「名詞,形容動詞語幹」の後に「名詞」がきたら別のアクセント句に */
+         /* 1-4  「名詞,形容動詞語幹」の後に「名詞」がきたら別のアクセント句に */
          /* 如果单词是名词且前一个单词的pos是名词，pos1是形容动词语干，切单词的chain flag设置为0 */
          if (strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_MEISHI) == 0)
             if (strcmp
@@ -127,7 +132,7 @@ void njd_set_accent_phrase(NJD * njd)
                if (strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_MEISHI) == 0)
                   NJDNode_set_chain_flag(node, 0);
 
-         /* Rule 05 「動詞」の後に「形容詞」or「名詞」がきたら別のアクセント句に */
+         /* 1-5  「動詞」の後に「形容詞」or「名詞」がきたら別のアクセント句に */
          /* 如果单词是形容词或名词且前一个单词是动词，则单词的chain flag设置为0 */
          if (strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_DOUSHI) == 0) {
             if (strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_KEIYOUSHI) == 0)
@@ -136,7 +141,7 @@ void njd_set_accent_phrase(NJD * njd)
                NJDNode_set_chain_flag(node, 0);
          }
 
-         /* Rule 06 「副詞」，「接続詞」，「連体詞」は単独のアクセント句に */
+         /* 1-6  「副詞」，「接続詞」，「連体詞」は単独のアクセント句に */
          /* 如果单词或前一个单词是副词、接续词或连体词时，则单词的chain flag设置为0 */
          if (strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_FUKUSHI) == 0
              || strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_FUKUSHI) == 0
@@ -146,7 +151,7 @@ void njd_set_accent_phrase(NJD * njd)
              || strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_RENTAISHI) == 0)
             NJDNode_set_chain_flag(node, 0);
 
-         /* Rule 07 「名詞,副詞可能」（すべて，など）は単独のアクセント句に */
+         /* 1-7  「名詞,副詞可能」（すべて，など）は単独のアクセント句に */
          /* 如果单词或前一个单词的pos是名词，pos1是副词可能，则单词的chain flag设置为0 */
          if (strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_MEISHI) == 0)
             if (strcmp(NJDNode_get_pos_group1(node->prev), NJD_SET_ACCENT_PHRASE_FUKUSHI_KANOU)
@@ -156,14 +161,14 @@ void njd_set_accent_phrase(NJD * njd)
             if (strcmp(NJDNode_get_pos_group1(node), NJD_SET_ACCENT_PHRASE_FUKUSHI_KANOU) == 0)
                NJDNode_set_chain_flag(node, 0);
 
-         /* Rule 08 「助詞」or「助動詞」（付属語）は前にくっつける */
+         /* 1-8  「助詞」or「助動詞」（付属語）は前にくっつける */
          /* 如果单词是助词或助动词，则chain flag设置为1 */
          if (strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_JODOUSHI) == 0)
             NJDNode_set_chain_flag(node, 1);
          if (strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_JOSHI) == 0)
             NJDNode_set_chain_flag(node, 1);
 
-         /* Rule 09 「助詞」or「助動詞」（付属語）の後の「助詞」，「助動詞」以外（自立語）は別のアクセント句に */
+         /* 1-9  「助詞」or「助動詞」（付属語）の後の「助詞」，「助動詞」以外（自立語）は別のアクセント句に */
          /* 如果单词是自立语且前一个单词是助词或助动词，则单词的chain flag设置为0 */
          if (strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_JODOUSHI) == 0)
             if (strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_JODOUSHI) != 0 &&
@@ -174,13 +179,13 @@ void njd_set_accent_phrase(NJD * njd)
                 strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_JOSHI) != 0)
                NJDNode_set_chain_flag(node, 0);
 
-         /* Rule 10 「*,接尾」の後の「名詞」は別のアクセント句に */
+         /* 1-10  「*,接尾」の後の「名詞」は別のアクセント句に */
          /* 如果单词是名词且前一个单词是接尾词，则单词的chain flag设置为0 */
          if (strcmp(NJDNode_get_pos_group1(node->prev), NJD_SET_ACCENT_PHRASE_SETSUBI) == 0)
             if (strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_MEISHI) == 0)
                NJDNode_set_chain_flag(node, 0);
 
-         /* Rule 11 「形容詞,非自立」は「動詞,連用*」or「形容詞,連用*」or「助詞,接続助詞,て」or「助詞,接続助詞,で」に接続する場合に前にくっつける */
+         /* 1-11  「形容詞,非自立」は「動詞,連用*」or「形容詞,連用*」or「助詞,接続助詞,て」or「助詞,接続助詞,で」に接続する場合に前にくっつける */
          /* 如果单词是非自立的形容词（難い　ガタイ），在前一个单词是以下情况时单词的chain flag设置为1 */
          if (strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_KEIYOUSHI) == 0)
             if (strcmp(NJDNode_get_pos_group1(node), NJD_SET_ACCENT_PHRASE_HIJIRITSU) == 0) {
@@ -203,7 +208,7 @@ void njd_set_accent_phrase(NJD * njd)
                }
             }
 
-         /* Rule 12 「動詞,非自立」は「動詞,連用*」or「名詞,サ変接続」に接続する場合に前にくっつける */
+         /* 1-12  「動詞,非自立」は「動詞,連用*」or「名詞,サ変接続」に接続する場合に前にくっつける */
          /* 如果单词是非自立的动词（なおし），在前一个单词是以下情况时，chain flag设置为1 */
          if (strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_DOUSHI) == 0)
             if (strcmp(NJDNode_get_pos_group1(node), NJD_SET_ACCENT_PHRASE_HIJIRITSU) == 0) {
@@ -218,7 +223,7 @@ void njd_set_accent_phrase(NJD * njd)
                }
             }
 
-         /* Rule 13 「名詞」の後に「動詞」or「形容詞」or「名詞,形容動詞語幹」がきたら別のアクセント句に */
+         /* 1-13  「名詞」の後に「動詞」or「形容詞」or「名詞,形容動詞語幹」がきたら別のアクセント句に */
          /* 如果单词是名词且前一个单词是动词、形容词或形容动词词干名词（悲惨 ヒサン），则单词的chain flag设置为0 */
          if (strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_MEISHI) == 0) {
             if (strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_DOUSHI) == 0 ||
@@ -227,33 +232,67 @@ void njd_set_accent_phrase(NJD * njd)
                NJDNode_set_chain_flag(node, 0);
          }
 
-         /* Rule 14 「記号」は単独のアクセント句に */ 
+         /* 1-14  「記号」は単独のアクセント句に */ 
          /* 标点符号单独成为一个ap */
          if (strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_KIGOU) == 0 ||
              strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_KIGOU) == 0)
             NJDNode_set_chain_flag(node, 0);
 
-         /* Rule 15 「接頭詞」は単独のアクセント句に */
+         /* 1-15  「接頭詞」は単独のアクセント句に */
          /* 接头词（御 ご）单独成为一个ap */
          if (strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_SETTOUSHI) == 0)
             NJDNode_set_chain_flag(node, 0);
 
-         /* Rule 16 「*,*,*,姓」の後の「名詞」は別のアクセント句に */
+         /* 1-16  「*,*,*,姓」の後の「名詞」は別のアクセント句に */
          /* 如果单词是名词且前一个单词是姓，则单词的chain flag设置为0 */
          if (strcmp(NJDNode_get_pos_group3(node->prev), NJD_SET_ACCENT_PHRASE_SEI) == 0
              && strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_MEISHI) == 0)
             NJDNode_set_chain_flag(node, 0);
 
-         /* Rule 17 「名詞」の後の「*,*,*,名」は別のアクセント句に */
+         /* 1-17  「名詞」の後の「*,*,*,名」は別のアクセント句に */
          /* 如果单词是名且前一个单词是名词，则单词的chain flag设置为0 */
          if (strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_MEISHI) == 0
              && strcmp(NJDNode_get_pos_group3(node), NJD_SET_ACCENT_PHRASE_MEI) == 0)
             NJDNode_set_chain_flag(node, 0);
 
-         /* Rule 18 「*,接尾」は前にくっつける */
+         /* 1-18  「*,接尾」は前にくっつける */
          /* 如果单词是接尾词（頃　ごろ），则单词的chain flag设置为1 */
          if (strcmp(NJDNode_get_pos_group1(node), NJD_SET_ACCENT_PHRASE_SETSUBI) == 0)
             NJDNode_set_chain_flag(node, 1);
+
+         /*========================*/
+         /* Level 2 (less general) */
+         /*========================*/
+
+         /* 2-1  「名詞,非自立」は「動詞」or「形容詞」に接続する場合に前にくっつける */
+         if (strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_MEISHI) == 0
+             && strcmp(NJDNode_get_pos_group1(node), NJD_SET_ACCENT_PHRASE_HIJIRITSU) == 0)
+            if (strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_DOUSHI) == 0
+                || strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_KEIYOUSHI) == 0)
+               NJDNode_set_chain_flag(node, 1);
+
+         /* 2-2  「名詞,非自立」の後の「名詞,自立」は別のアクセント句に */
+         if (strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_MEISHI) == 0
+             && strcmp(NJDNode_get_pos_group1(node->prev), NJD_SET_ACCENT_PHRASE_HIJIRITSU) == 0)
+            if (strcmp(NJDNode_get_pos(node), NJD_SET_ACCENT_PHRASE_MEISHI) == 0
+                && strcmp(NJDNode_get_pos_group1(node), NJD_SET_ACCENT_PHRASE_HIJIRITSU) != 0)
+               NJDNode_set_chain_flag(node, 0);
+
+         /* 2-3  「フィラー」or「感動詞」の後の単語は別のアクセント句に */
+         if (strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_FILLER) == 0
+             || strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_KANDOUSHI) == 0)
+               NJDNode_set_chain_flag(node, 0);
+
+         /* 2-4  「名詞」の後の「名詞,代名詞」は別のアクセント句に、「代名詞」の後の「名詞」は別のアクセント句に */
+         if (strcmp(NJDNode_get_pos(node->prev), NJD_SET_ACCENT_PHRASE_MEISHI) == 0)
+            if (strcmp(NJDNode_get_pos_group1(node), NJD_SET_ACCENT_PHRASE_DAIMEISHI) == 0)
+               NJDNode_set_chain_flag(node, 0);
+
+         /* 2-5  「名詞,サ変接続」or「名詞,形容動詞語幹」の後の「動詞,サ変＊」は前にくっつける */
+         if (strcmp(NJDNode_get_orig(node), NJD_SET_ACCENT_PHRASE_SURU) == 0)
+            if (strcmp(NJDNode_get_pos_group1(node->prev), NJD_SET_ACCENT_PHRASE_SAHEN_SETSUZOKU) == 0
+                || strcmp(NJDNode_get_pos_group1(node->prev), NJD_SET_ACCENT_PHRASE_KEIYOUDOUSHI_GOKAN) == 0)
+               NJDNode_set_chain_flag(node, 1);
       }
    }
 }
