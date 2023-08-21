@@ -6,9 +6,7 @@
 
 Natsume is a toolkit for Japanese text frontend processing. It's based on the open source project [OpenJTalk](http://open-jtalk.sp.nitech.ac.jp/) and its python wrapper [pyopenjalk](https://github.com/r9y9/pyopenjtalk).
 
-Natsume mainly focuses on grapheme-to-phoneme (g2p) conversion and accent annotation. Since the NJD features in OpenJTalk are already enough for determining the boundary and accent nucleus of an accent phrase, Natsume doesn't use [full context labels](http://hts.sp.nitech.ac.jp/archives/2.3/HTS-demo_NIT-ATR503-M001.tar.bz2) for simplicity and accuracy.
-
-Also, Natsume provides some other functions, including one converting Japanese new fonts to old fonts.
+Natsume mainly focuses on grapheme-to-phoneme (g2p) conversion and accent annotation. Since the NJD features in OpenJTalk are already enough for determining the boundary and accent nucleus of an accent phrase, Natsume doesn't use [full context labels](http://hts.sp.nitech.ac.jp/archives/2.3/HTS-demo_NIT-ATR503-M001.tar.bz2) for simplicity and accuracy. Also, additional rules are added and applied to better deternmine the boundary of accent phrases.
 
 ## Build Requirements
 
