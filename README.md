@@ -231,6 +231,9 @@ for mecab_feature in mecab_features:
 
 - [OpenJTalk](https://open-jtalk.sourceforge.net/)
 - [pyopenjtalk](https://github.com/r9y9/pyopenjtalk)
+- [tdmelodic](https://github.com/PKSHATechnology-Research/tdmelodic)
+- [tdmelodic_openjtalk](https://github.com/sarulab-speech/tdmelodic_openjtalk)
+- [単語の追加方法](https://github.com/sarulab-speech/tdmelodic_openjtalk)
 - [OpenJTalkの解析資料](https://www.negi.moe/negitalk/openjtalk.html)
 - [Wikipedia: Hiragana](https://en.wikipedia.org/wiki/Hiragana)
 - [新旧字体対照表](https://hagitaka.work/wp-content/uploads/2021/07/%E6%96%B0%E6%97%A7%E5%AD%97%E4%BD%93%E5%AF%BE%E7%85%A7%E8%A1%A8-1.pdf)
