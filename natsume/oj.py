@@ -112,11 +112,11 @@ class DictManager(object):
     def create_config(self):
         config = {
             "dict_urls": {
-                "naist-jdic": "https://github.com/r9y9/open_jtalk/releases/download/v1.11.1/open_jtalk_dic_utf_8-1.11.tar.gz"
-                }, 
+                "naist-jdic": "https://github.com/r9y9/open_jtalk/releases/download/v1.11.1/open_jtalk_dic_utf_8-1.11.tar.gz",
+                "naist-jdic-tdmelodic": ""}, 
             "dict_pkgs": {
-                "naist-jdic": "open_jtalk_dic_utf_8-1.11"
-                },
+                "naist-jdic": "open_jtalk_dic_utf_8-1.11",
+                "naist-jdic-tdmelodic": "naist-jdic-tdmelodic"},
             "dict_name": "",
             "dict_dir": "",
         }

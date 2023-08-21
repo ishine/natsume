@@ -172,6 +172,45 @@ print(old)
 櫻、櫻、うたかたに。
 ```
 
+## Dictionary
+
+By default, Natsume uses [naist-jdic](http://naist-jdic.osdn.jp/). If you would like to use [tdmelodic](https://github.com/PKSHATechnology-Research/tdmelodic), specify `dict_name` argument.
+
+```Python
+from natsume import Natsume
+
+frontend = Natsume(dict_name="naist-jdic-tdmelodic")
+```
+Here's a example of using tdmelodic.
+
+```python
+text = "龍野町に住んでいます。"
+
+mecab_features = frontend.text2mecab(text)
+
+for mecab_feature in mecab_features:
+    surface = mecab_feature["surface"]
+    feature_string = ",".join(list(mecab_feature.values())[1:])
+    print("{}\t{}".format(surface, feature_string))
+```
+
+**without tdmelodic**
+
+```
+龍野	名詞,固有名詞,地域,一般,*,*,龍野,タツノ,タツノ,0/3,C2
+町	名詞,接尾,地域,*,*,*,町,マチ,マチ,2/2,C3
+に	助詞,格助詞,一般,*,*,*,に,ニ,ニ,0/1,動詞%F5/形容詞%F1/名詞%F1
+住ん	動詞,自立,*,*,五段・マ行,連用タ接続,住む,スン,スン,1/2,*
+で	助詞,接続助詞,*,*,*,*,で,デ,デ,1/1,動詞%F1
+い	動詞,非自立,*,*,一段,連用形,いる,イ,イ,0/1,*
+ます	助動詞,*,*,*,特殊・マス,基本形,ます,マス,マス’,1/2,動詞%F4@1/助詞%F2@1
+。	記号,句点,*,*,*,*,。,。,。,*/*,*
+```
+
+**with tdmelodic**
+
+
+
 ## LICENCE
 
 - Natsume: GPL license ([LICENSE](LICENSE))
