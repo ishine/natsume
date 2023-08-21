@@ -181,7 +181,8 @@ from natsume import Natsume
 
 frontend = Natsume(dict_name="naist-jdic-tdmelodic")
 ```
-Here's a example of using tdmelodic.
+
+Here's a example showing how tdmelodic is robust to neologisms.
 
 ```python
 text = "龍野町に住んでいます。"
@@ -209,6 +210,15 @@ for mecab_feature in mecab_features:
 
 **with tdmelodic**
 
+```
+龍野町	名詞,固有名詞,一般,*,*,*,龍野町,タツノチョウ,タツノチョー,3/5,*
+に	助詞,格助詞,一般,*,*,*,に,ニ,ニ,0/1,動詞%F5/形容詞%F1/名詞%F1
+住ん	動詞,自立,*,*,五段・マ行,連用タ接続,住む,スン,スン,1/2,*
+で	助詞,接続助詞,*,*,*,*,で,デ,デ,1/1,動詞%F1
+い	動詞,非自立,*,*,一段,連用形,いる,イ,イ,0/1,*
+ます	助動詞,*,*,*,特殊・マス,基本形,ます,マス,マス’,1/2,動詞%F4@1/助詞%F2@1
+。	記号,句点,*,*,*,*,。,。,。,*/*,*
+```
 
 
 ## LICENCE

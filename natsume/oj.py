@@ -13,6 +13,15 @@ import tarfile
 from natsume.openjtalk import OpenJTalk
 from natsume.utils import MecabFeature, NJDFeature
 
+GLOBAL_CONFIG = {
+    "dict_urls": {
+        "naist-jdic": "https://github.com/r9y9/open_jtalk/releases/download/v1.11.1/open_jtalk_dic_utf_8-1.11.tar.gz",
+        "naist-jdic-tdmelodic": "https://github.com/Francis-Komizu/natsume/releases/download/naist-jdic-tdmelodic/naist-jdic-tdmelodic.tar.gz"}, 
+    "dict_pkgs": {
+        "naist-jdic": "open_jtalk_dic_utf_8-1.11",
+        "naist-jdic-tdmelodic": "naist-jdic-tdmelodic"},
+}
+
 
 class OpenjtalkFrontend(object):
     def __init__(self, dict_name=None):
@@ -65,39 +74,54 @@ class DictManager(object):
         self._dict_dir = self._config["dict_dir"]
 
     def get_dict_dir(self, dict_name=None):
-        # TODO: check wether there's already a costumized dictionary available
         if dict_name is None:
-            if self.check_dict_dir():
-                # default dictionary dir is availale
+            # use most recently used dict download a default dict
+            if self.check_dict_dir(self._dict_dir):
+                # most recently used dict is availabel
                 return self._dict_dir.encode("utf-8")
-            else:
+            elif dict_name is None:
                 # download naist-jdic as default dictionary
-                print("No dictionary available, download {}".format(list(self._config["dict_urls"].keys())[0]))
+                print("No dictionary available, download {}.".format(list(self._config["dict_urls"].keys())[0]))
                 dict_name = "naist-jdic"
+                dict_dir = self.download_dict(dict_name)
+        
+        else:
+            if dict_name not in GLOBAL_CONFIG["dict_urls"].keys():
+                raise ValueError("No such dictionary available. Expected {}."
+                                .format(", ".join(list(GLOBAL_CONFIG["dict_urls"].keys()))))
 
-        dict_dir = self.download_dict(dict_name)
+            dict_pkg = GLOBAL_CONFIG["dict_pkgs"][dict_name]
+            dict_dir = pkg_resources.resource_filename(__name__, dict_pkg)
+            if self.check_dict_dir(dict_dir):
+                # dict is available
+                pass
+            else:
+                # not available, download one
+                print("{} is not available, download one.".format(dict_name))
+                self.download_dict(dict_name)
 
         return dict_dir.encode("utf-8")
 
-    def check_dict_dir(self):
-        if os.path.exists(self._dict_dir) and os.path.isdir(self._dict_dir):
+    @staticmethod
+    def check_dict_dir(dict_dir):
+        if os.path.exists(dict_dir) and os.path.isdir(dict_dir):
             return True
         return False
     
     def download_dict(self, dict_name):
-        if dict_name not in self._config["dict_urls"].keys():
-            raise ValueError("No such dictionary available. Expected {}"
-                            .format(",".join(list(self._config["dict_urls"].keys()))))
+        if dict_name not in GLOBAL_CONFIG["dict_urls"].keys():
+            raise ValueError("No such dictionary available. Expected {}."
+                            .format(", ".join(list(GLOBAL_CONFIG["dict_urls"].keys()))))
         
-        dict_url = self._config["dict_urls"][dict_name]
-        dict_pkg = self._config["dict_pkgs"][dict_name]
+        dict_url = GLOBAL_CONFIG["dict_urls"][dict_name]
+        dict_pkg = GLOBAL_CONFIG["dict_pkgs"][dict_name]
         self._config["dict_name"] = dict_name
 
         filename = pkg_resources.resource_filename(__name__, "dic.tar.gz")
-        print("Downloading dictionary from {}".format(dict_url))
+        print("Downloading dictionary from {}...".format(dict_url))
         urlretrieve(dict_url, filename)
 
-        print("Extracting tar file {}".format(filename))
+        print("Extracting tar file {}...".format(filename))
         with tarfile.open(filename, mode="r|gz") as f:
             f.extractall(path=pkg_resources.resource_filename(__name__, ""))
 
@@ -105,22 +129,15 @@ class DictManager(object):
         self._config["dict_dir"] = dict_dir
         self.save_config()
         os.remove(filename)
-        print("Successfully downloaded {} to {}".format(dict_name, dict_dir))
+        print("Successfully downloaded {} to {}.".format(dict_name, dict_dir))
 
         return dict_dir
     
     def create_config(self):
         config = {
-            "dict_urls": {
-                "naist-jdic": "https://github.com/r9y9/open_jtalk/releases/download/v1.11.1/open_jtalk_dic_utf_8-1.11.tar.gz",
-                "naist-jdic-tdmelodic": ""}, 
-            "dict_pkgs": {
-                "naist-jdic": "open_jtalk_dic_utf_8-1.11",
-                "naist-jdic-tdmelodic": "naist-jdic-tdmelodic"},
             "dict_name": "",
-            "dict_dir": "",
+            "dict_dir": ""
         }
-
         with open(self._config_path, "w", encoding="utf-8") as f:
             json.dump(config, f)
 
@@ -138,4 +155,3 @@ class DictManager(object):
     def save_config(self):
         with open(self._config_path, "w", encoding="utf-8") as f:
             json.dump(self._config, f)
-
