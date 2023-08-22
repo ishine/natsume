@@ -1,6 +1,7 @@
 # Natsume/棗
 
 [![PyPI](https://img.shields.io/pypi/v/natsume.svg)](https://pypi.python.org/pypi/natsume)
+[![MIT](https://img.shields.io/github/license/Francis-Komizu/natsume.svg)](https://github.com/Francis-Komizu/natsume/blob/master/LICENSE)
 
 ## Introduction
 
