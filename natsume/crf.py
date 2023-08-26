@@ -1,10 +1,6 @@
 import unicodedata
 
-try:
-    import CRFPP
-except:
-    raise ImportError("CRF++ is not installed! Please see {} for more information."
-                      .format(""))
+import CRFPP
 
 def letters_full_to_half(text):
     converted_text = ""
@@ -33,10 +29,21 @@ def letters_half_to_full(text):
     return converted_text
 
 
+# Reference: https://github.com/rockingdingo/deepnlp/blob/master/deepnlp/segmenter.py
 class CRFPredictor(object):
-    def __init__(self, model_path):
-        self._tagger = CRFPP.Tagger("-m" + model_path)
-
+    def __init__(self, model_path=None):
+        self._model_path = model_path
+        self._tagger = None
+        self._initialize()
+ 
+    def _initialize(self):
+        if not self._model_path:
+            pass
+        try:
+            self._tagger = CRFPP.Tagger("-m" + self._model_path)
+        except:
+            raise ValueError("Failed to load CRF predictor. Model path is invalid.")
+            
     def predict(self, njd_features):
         """Make njd features fit the format of CRF
         """
@@ -69,10 +76,6 @@ class CRFPredictor(object):
                 surface = self._tagger.x(i, j) # surface
                 chain_flag = self._tagger.y2(i)    # chain flag
                 # assign predicted chain flag
-                njd_features[i]["chain_flag"] = chain_flag
+                njd_features[i]["chain_flag"] = int(chain_flag) # chain flag is an integer
 
         return njd_features
-
-
-if __name__ == "__main__":
-    pass

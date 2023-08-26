@@ -5,12 +5,13 @@ from natsume.utils import (
 
 class Natsume(object):
     def __init__(self,
-                 dict_name=None):
-        self._oj = OpenjtalkFrontend(dict_name)
+                 dict_name=None,
+                 crf_model_path=None):
+        self._oj = OpenjtalkFrontend(dict_name=dict_name, crf_model_path=crf_model_path)
         self._g2p_modes = ["romaji", "ipa"]
         self._token_modes = ["word", "phrase"]
 
-    def tokenize(self, text, mode="word"):
+    def tokenize(self, text, mode="word", use_crf=False):
         """Tokenize text into tokens
         """
         if mode not in self._token_modes:
@@ -19,12 +20,12 @@ class Natsume(object):
                 .format(", ".join(self._token_modes), mode)
             )
         
-        features = self._oj.get_features(text, mode=mode)
+        features = self._oj.get_features(text, mode=mode, use_crf=use_crf)
         tokens = features_to_tokens(features, mode=mode)
         return tokens
 
 
-    def g2p(self, text, phoneme_mode="romaji", token_mode="word", with_accent=False):
+    def g2p(self, text, phoneme_mode="romaji", token_mode="word", with_accent=False, use_crf=False):
         """Grapheme-to-phoneme conversion
         """
         if phoneme_mode not in self._g2p_modes:
@@ -33,8 +34,8 @@ class Natsume(object):
                 .format(", ".join(self._g2p_modes), phoneme_mode)
             )
         
-        tokens = self.tokenize(text, token_mode)
-        phonemes = tokens_to_phonemes(tokens, phoneme_mode, with_accent)
+        tokens = self.tokenize(text, token_mode, use_crf=use_crf)
+        phonemes = tokens_to_phonemes(tokens, phoneme_mode, with_accent=with_accent)
 
         return phonemes
 

@@ -22,17 +22,26 @@ GLOBAL_CONFIG = {
         "naist-jdic-tdmelodic": "naist-jdic-tdmelodic"},
 }
 
-
 class OpenjtalkFrontend(object):
-    def __init__(self, dict_name=None):
+    def __init__(self, dict_name=None, crf_model_path=None):
         self._dict_name = dict_name
+        self._crf_model_path = crf_model_path
         self._oj = None  # openjtalk
+        self._crf = None # crf predictor
         self._dm = None  # dictionary manager
 
         self._initialize()
 
     def _initialize(self):
         self._dm = DictManager()
+        if self._crf_model_path:
+            try:
+                from natsume.crf import CRFPredictor
+                self._crf = CRFPredictor(self._crf_model_path)
+            except:
+                raise ImportError("CRF++ is not installed! Please see {} for more information."
+                                  .format("https://taku910.github.io/crfpp/"))
+            
         dict_dir = self._dm.get_dict_dir(self._dict_name)
         self._oj = OpenJTalk(dn_mecab=dict_dir)
 
@@ -40,7 +49,11 @@ class OpenjtalkFrontend(object):
         self._dict_dir = dict_dir
         self._initialize()
 
-    def get_features(self, text, mode="word"):
+    def set_crf_model_path(self, crf_model_path):
+        self._crf_model_path = crf_model_path
+        self._initialize()
+
+    def get_features(self, text, mode="word", use_crf=False):
         features = []
         if mode == "word":
             raw_features = self.get_mecab_features(text)
@@ -48,7 +61,17 @@ class OpenjtalkFrontend(object):
                 feature = MecabFeature(raw_feature)
                 features.append(feature)
         elif mode == "phrase":
-            raw_features = self.get_njd_features(text)
+            if use_crf:
+                # oj -> crf -> oj
+                if self._crf:
+                    raw_features = self.get_njd_features_inter1(text)
+                    raw_features = self._crf.predict(raw_features) 
+                    raw_features = self.put_njd_features_inter1(raw_features)
+                else:
+                    raise ValueError("CRF++ is not installed or CRF model is not loaded.")
+            else:
+                raw_features = self.get_njd_features(text)
+
             for raw_feature in raw_features:
                 feature = NJDFeature(raw_feature)
                 features.append(feature)

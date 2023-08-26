@@ -6,6 +6,7 @@ natsume/open_jtalk_dic_utf_8-1.11
 natsume/naist-jdic-tdmelodic
 natsume/config.json
 info.txt
+crf_model
 
 
 # Mac
