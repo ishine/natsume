@@ -159,7 +159,7 @@ cdef class OpenJTalk(object):
 
         return features
 
-    def get_njd_features(self, text):
+    def get_njd_features(self, text, use_rules=True):
         """Get NJD features
         """
         cdef char buff[8192]
@@ -169,12 +169,13 @@ cdef class OpenJTalk(object):
         text2mecab(buff, text)
         Mecab_analysis(self.mecab, buff)
         mecab2njd(self.njd, Mecab_get_feature(self.mecab), Mecab_get_size(self.mecab))
-        _njd.njd_set_pronunciation(self.njd)
-        _njd.njd_set_digit(self.njd)
-        _njd.njd_set_accent_phrase(self.njd)
-        _njd.njd_set_accent_type(self.njd)
-        _njd.njd_set_unvoiced_vowel(self.njd)
-        _njd.njd_set_long_vowel(self.njd)
+        if use_rules:
+            _njd.njd_set_pronunciation(self.njd)
+            _njd.njd_set_digit(self.njd)
+            _njd.njd_set_accent_phrase(self.njd)
+            _njd.njd_set_accent_type(self.njd)
+            _njd.njd_set_unvoiced_vowel(self.njd)
+            _njd.njd_set_long_vowel(self.njd)
         features = njd2feature(self.njd)
 
         # Note that this will release memory for njd feature
