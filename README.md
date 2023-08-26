@@ -17,6 +17,7 @@ Natsume has the following main features:
 - Support morphological analysis using [tdmelodic](https://github.com/PKSHATechnology-Research/tdmelodic)
 
 ## Updates
+- 2023/08/27: Support accent sandhi estimation using [marine](https://github.com/6gsn/marine).
 - 2023/08/26: Support accent phrase boundary estimation based on CRF (model is not publicly available yet).
 
 ## Build Requirements
@@ -126,11 +127,13 @@ print(" ".join([token.surface() for token in tokens]))
 何の 話を して いるのか まったく わからない 。
 ```
 
-## Using CRF
+## Using ML/DL models
 
-Use CRF to estimate the accent phrase boundary, which is more accurate and reasonable compared to rule-based method.
+Specify `mode` argument to use corresponding models. Currently, the following models are supported.
 
-Please make sure you have installed [CRF++](https://taku910.github.io/crfpp/) and its python binding.
+- `rule`: Default rule-based methoed.
+- `crf`: Use CRF to estimate the accent phrase boundary, which is more accurate and reasonable compared to rule-based method.
+- `marine`: Use [marine](https://github.com/6gsn/marine), a DNN-based accent sandhi predictor, to predict accent phrase boundary and accent nucleus simultaneouly. It's better than CRF but relatively slow.
 
 ```python
 from natsume import Natsume
@@ -140,8 +143,9 @@ frontend = Natsume(dict_name="naist-jdic",
 
 text = "今度機会があれば飲んでみてください。"
 
-tokens = frontend.tokenize(text, mode="phrase", use_crf=True)
-print(" ".join([token.surface() for token in tokens]))
+tokens = frontend.tokenize(text, mode="phrase", model="rule")
+tokens = frontend.tokenize(text, mode="phrase", model="crf")
+tokens = frontend.tokenize(text, mode="phrase", model="marine")
 ```
 
 ```bash
@@ -153,6 +157,9 @@ print(" ".join([token.surface() for token in tokens]))
 
 # CRF
 今度 機会が あれば 飲んでみてください 。
+
+# marine
+今度 機会が あれば 飲んでみて ください。
 ```
 
 ### MeCab Features
@@ -263,9 +270,10 @@ for mecab_feature in mecab_features:
 
 ## LICENCE
 
-- Natsume: GPL license ([LICENSE](LICENSE))
+- Natsume: GPL license ([LICENSE](licenses/LICENSE))
 - pyopenjtalk: MIT license ([LICENSE.md](https://github.com/r9y9/pyopenjtalk/LICENSE.md))
 - OpenJTalk: Modified BSD license ([COPYING](https://github.com/r9y9/open_jtalk/blob/1.10/src/COPYING))
+- marine: Apache 2.0 license([LICENSE](https://github.com/6gsn/marine/LICENSE))
 
 ## References
 
@@ -275,6 +283,7 @@ for mecab_feature in mecab_features:
 - [tdmelodic_openjtalk](https://github.com/sarulab-speech/tdmelodic_openjtalk)
 - [単語の追加方法](https://github.com/sarulab-speech/tdmelodic_openjtalk)
 - [CRF++: Yet Another CRF toolkit](https://taku910.github.io/crfpp/)
+- [marine](https://github.com/6gsn/marine)
 - [OpenJTalkの解析資料](https://www.negi.moe/negitalk/openjtalk.html)
 - [Wikipedia: Hiragana](https://en.wikipedia.org/wiki/Hiragana)
 - [新旧字体対照表](https://hagitaka.work/wp-content/uploads/2021/07/%E6%96%B0%E6%97%A7%E5%AD%97%E4%BD%93%E5%AF%BE%E7%85%A7%E8%A1%A8-1.pdf)

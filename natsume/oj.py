@@ -11,7 +11,7 @@ else:
 import tarfile
 
 from natsume.openjtalk import OpenJTalk
-from natsume.utils import MecabFeature, NJDFeature
+from natsume.utils import MecabFeature, NJDFeature, merge_njd_marine_features
 
 GLOBAL_CONFIG = {
     "dict_urls": {
@@ -28,6 +28,7 @@ class OpenjtalkFrontend(object):
         self._crf_model_path = crf_model_path
         self._oj = None  # openjtalk
         self._crf = None # crf predictor
+        self._marine = None # marine predictor
         self._dm = None  # dictionary manager
 
         self._initialize()
@@ -38,10 +39,20 @@ class OpenjtalkFrontend(object):
             try:
                 from natsume.crf import CRFPredictor
                 self._crf = CRFPredictor(self._crf_model_path)
-            except:
+            except BaseException:
                 raise ImportError("CRF++ is not installed! Please see {} for more information."
                                   .format("https://taku910.github.io/crfpp/"))
             
+        # Reference: Reference: https://github.com/r9y9/pyopenjtalk/blob/master/pyopenjtalk/__init__.py
+        try:
+            from marine.predict import Predictor as MarinePredictor
+        except BaseException:
+            raise ImportError(
+                "marine is not installed! Please see {} for more information."
+                .format("https://github.com/6gsn/marine")
+            )
+        
+        self._marine = MarinePredictor()
         dict_dir = self._dm.get_dict_dir(self._dict_name)
         self._oj = OpenJTalk(dn_mecab=dict_dir)
 
@@ -53,7 +64,7 @@ class OpenjtalkFrontend(object):
         self._crf_model_path = crf_model_path
         self._initialize()
 
-    def get_features(self, text, mode="word", use_crf=False):
+    def get_features(self, text, mode="word", model="rule"):
         features = []
         if mode == "word":
             raw_features = self.get_mecab_features(text)
@@ -61,7 +72,10 @@ class OpenjtalkFrontend(object):
                 feature = MecabFeature(raw_feature)
                 features.append(feature)
         elif mode == "phrase":
-            if use_crf:
+            if model == "rule":
+                # default is rule-based model
+                raw_features = self.get_njd_features(text)
+            elif model == "crf":
                 # oj -> crf -> oj
                 if self._crf:
                     raw_features = self.get_njd_features_inter1(text)
@@ -69,9 +83,20 @@ class OpenjtalkFrontend(object):
                     raw_features = self.put_njd_features_inter1(raw_features)
                 else:
                     raise ValueError("CRF++ is not installed or CRF model is not loaded.")
-            else:
-                raw_features = self.get_njd_features(text)
+            elif model == "marine":
+                # accent sandhi estimation using marine
+                from marine.utils.openjtalk_util import convert_njd_feature_to_marine_feature
 
+                njd_features = self.get_njd_features(text)
+                marine_features = convert_njd_feature_to_marine_feature(njd_features)
+                marine_results = self._marine.predict(
+                    [marine_features], require_open_jtalk_format=True
+                )
+                raw_features = merge_njd_marine_features(njd_features, marine_results)
+            else:
+                # default is rule-based model
+                raw_features = self.get_njd_features(text)
+                
             for raw_feature in raw_features:
                 feature = NJDFeature(raw_feature)
                 features.append(feature)

@@ -10,8 +10,9 @@ class Natsume(object):
         self._oj = OpenjtalkFrontend(dict_name=dict_name, crf_model_path=crf_model_path)
         self._g2p_modes = ["romaji", "ipa"]
         self._token_modes = ["word", "phrase"]
+        self._models = ["rule", "crf", "marine"]
 
-    def tokenize(self, text, mode="word", use_crf=False):
+    def tokenize(self, text, mode="word", model="rule"):
         """Tokenize text into tokens
         """
         if mode not in self._token_modes:
@@ -19,13 +20,19 @@ class Natsume(object):
                 "Invalid mode for tokenization. Expected {}, got {} instead."
                 .format(", ".join(self._token_modes), mode)
             )
+
+        if model not in self._models:
+            raise ValueError(
+                "Invalid model for tokenization. Expected {}, got {} instead."
+                .format(", ".join(self._models), model)
+            )
         
-        features = self._oj.get_features(text, mode=mode, use_crf=use_crf)
+        features = self._oj.get_features(text, mode=mode, model=model)
         tokens = features_to_tokens(features, mode=mode)
         return tokens
 
 
-    def g2p(self, text, phoneme_mode="romaji", token_mode="word", with_accent=False, use_crf=False):
+    def g2p(self, text, phoneme_mode="romaji", token_mode="word", with_accent=False, model="rule"):
         """Grapheme-to-phoneme conversion
         """
         if phoneme_mode not in self._g2p_modes:
@@ -34,7 +41,7 @@ class Natsume(object):
                 .format(", ".join(self._g2p_modes), phoneme_mode)
             )
         
-        tokens = self.tokenize(text, token_mode, use_crf=use_crf)
+        tokens = self.tokenize(text, token_mode, model=model)
         phonemes = tokens_to_phonemes(tokens, phoneme_mode, with_accent=with_accent)
 
         return phonemes
