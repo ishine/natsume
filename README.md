@@ -7,7 +7,17 @@
 
 Natsume is a toolkit for Japanese text frontend processing. It's based on the open source project [OpenJTalk](http://open-jtalk.sp.nitech.ac.jp/) and its python wrapper [pyopenjalk](https://github.com/r9y9/pyopenjtalk).
 
-Natsume mainly focuses on grapheme-to-phoneme (g2p) conversion and accent annotation. Since the NJD features in OpenJTalk are already enough for determining the boundary and accent nucleus of an accent phrase, Natsume doesn't use [full context labels](http://hts.sp.nitech.ac.jp/archives/2.3/HTS-demo_NIT-ATR503-M001.tar.bz2) for simplicity and accuracy. Also, additional rules are added and applied to better deternmine the boundary of accent phrases.
+Natsume has the following main features:
+- Doesn't use [full context labels](http://hts.sp.nitech.ac.jp/archives/2.3/HTS-demo_NIT-ATR503-M001.tar.bz2): The NJD features in OpenJTalk are already enough for determining the boundary and accent nucleus of an accent phrase. In addition, JPCoomon could sometimes bring redundant boundaries.
+
+- Apply more rules: On top of the rules provided in OpenJTalk, we have derived some additional rules based on literature and case studies. Also, few original rules have been modified. Please see [njd_set_accent_phrase](libs/open_jtalk/src/njd_set_accent_phrase) for more information.
+
+- Support CRF-based accent phrase boundary estimation
+
+- Support morphological analysis using [tdmelodic](https://github.com/PKSHATechnology-Research/tdmelodic)
+
+## Updates
+- 2023/08/26: Support accent phrase boundary estimation based on CRF (model is not publicly available yet).
 
 ## Build Requirements
 
@@ -50,7 +60,7 @@ phonemes = frontend.g2p(text, phoneme_mode="romaji", token_mode="phrase")
 print(" ".join(phonemes))
 ```
 
-```
+```bash
 teNkiga iikara , saNpo shimasho: .
 ```
 
@@ -63,7 +73,7 @@ phonemes = frontend.g2p(text, phoneme_mode="ipa", token_mode="phrase")
 print(" ".join(phonemes))
 ```
 
-```
+```bash
 teNkiga iikaɾa , saNpo ɕimaɕo: .
 ```
 
@@ -76,7 +86,7 @@ phonemes = frontend.g2p(text, phoneme_mode="romaji", token_mode="phrase", with_a
 print(" ".join(phonemes))
 ```
 
-```
+```bash
 teꜜNkiga iꜜikara , saꜛNpo shiꜛmashoꜜ: .
 ```
 
@@ -99,7 +109,7 @@ tokens = frontend.tokenize(text, mode="word")
 print(" ".join([token.surface() for token in tokens]))
 ```
 
-```
+```bash
 何 の 話 を し て いる の か まったく わから ない 。
 ```
 
@@ -112,8 +122,35 @@ tokens = frontend.tokenize(text, mode="phrase")
 print(" ".join([token.surface() for token in tokens]))
 ```
 
-```
+```bash
 何の 話を して いるのか まったく わからない 。
+```
+
+## Using CRF
+
+Use CRF to estimate the accent phrase boundary, which is more accurate and reasonable compared to rule-based method.
+
+```python
+from natsume import Natsume
+
+frontend = Natsume(dict_name="naist-jdic",
+                   crf_model_path="natsume/crf_model")
+
+text = "今度機会があれば飲んでみてください。"
+
+tokens = frontend.tokenize(text, mode="phrase", use_crf=True)
+print(" ".join([token.surface() for token in tokens]))
+```
+
+```bash
+# ground truth
+今度 機会が あれば 飲んでみてください 。
+
+# rule-based
+今度 機会が あれば 飲んで みて ください 。
+
+# CRF
+今度 機会が あれば 飲んでみてください 。
 ```
 
 ### MeCab Features
@@ -135,7 +172,7 @@ for mecab_feature in mecab_features:
     print("{}\t{}".format(surface, feature_string))
 ```
 
-```
+```bash
 人間	名詞,一般,*,*,*,*,人間,ニンゲン,ニンゲン,0/4,C2
 は	助詞,係助詞,*,*,*,*,は,ハ,ワ,0/1,名詞%F1/動詞%F2@0/形容詞%F2@0
 「	記号,括弧開,*,*,*,*,「,「,「,*/*,*
@@ -169,7 +206,7 @@ new = "桜、桜、うたかたに。"
 old = frontend.convert_fonts(new, reverse=False)
 print(old)
 ```
-```
+```bash
 櫻、櫻、うたかたに。
 ```
 
@@ -177,7 +214,7 @@ print(old)
 
 By default, Natsume uses [naist-jdic](http://naist-jdic.osdn.jp/). If you would like to use [tdmelodic](https://github.com/PKSHATechnology-Research/tdmelodic), specify `dict_name` argument.
 
-```Python
+```python
 from natsume import Natsume
 
 frontend = Natsume(dict_name="naist-jdic-tdmelodic")
@@ -198,7 +235,7 @@ for mecab_feature in mecab_features:
 
 **without tdmelodic**
 
-```
+```bash
 龍野	名詞,固有名詞,地域,一般,*,*,龍野,タツノ,タツノ,0/3,C2
 町	名詞,接尾,地域,*,*,*,町,マチ,マチ,2/2,C3
 に	助詞,格助詞,一般,*,*,*,に,ニ,ニ,0/1,動詞%F5/形容詞%F1/名詞%F1
@@ -211,7 +248,7 @@ for mecab_feature in mecab_features:
 
 **with tdmelodic**
 
-```
+```bash
 龍野町	名詞,固有名詞,一般,*,*,*,龍野町,タツノチョウ,タツノチョー,3/5,*
 に	助詞,格助詞,一般,*,*,*,に,ニ,ニ,0/1,動詞%F5/形容詞%F1/名詞%F1
 住ん	動詞,自立,*,*,五段・マ行,連用タ接続,住む,スン,スン,1/2,*
