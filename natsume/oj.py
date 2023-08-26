@@ -60,9 +60,9 @@ class OpenjtalkFrontend(object):
 
         return features
     
-    def get_njd_features(self, text, use_rules=True):
+    def get_njd_features(self, text):
 
-        features = self._oj.get_njd_features(text, use_rules)
+        features = self._oj.get_njd_features(text)
 
         return features
 
