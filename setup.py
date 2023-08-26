@@ -17,7 +17,7 @@ from setuptools import Extension, find_packages, setup
 
 # Reference: https://github.com/r9y9/pyopenjtalk/blob/master/setup.py
 
-version = "0.2.0"
+version = "0.2.1"
 min_cython_ver = "0.21.0"
 
 try:
@@ -146,5 +146,6 @@ setup(
         "cython >= " + min_cython_ver + ",<3.0.0",
         "six",
         "tqdm",
+        "marine>=0.0.5"
     ]
 )
