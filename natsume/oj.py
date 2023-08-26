@@ -61,10 +61,20 @@ class OpenjtalkFrontend(object):
         return features
     
     def get_njd_features(self, text):
-
         features = self._oj.get_njd_features(text)
 
         return features
+
+    def get_njd_features_inter1(self, text):
+        features = self._oj.get_njd_features_inter1(text)
+
+        return features
+    
+    def put_njd_features_inter1(self, features):
+        features = self._oj.put_njd_features_inter1(features)
+
+        return features
+
 
 # Reference: https://github.com/r9y9/pyopenjtalk/blob/master/pyopenjtalk/__init__.py    
 class DictManager(object):

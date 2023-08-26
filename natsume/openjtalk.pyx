@@ -117,6 +117,29 @@ cdef njd2feature(_njd.NJD* njd):
       node = node.next
     return features
 
+cdef feature2njd(_njd.NJD* njd, features):
+    cdef _njd.NJDNode* node
+
+    for feature_node in features:
+        node = <_njd.NJDNode *> calloc(1, sizeof(_njd.NJDNode))
+        _njd.NJDNode_initialize(node)
+        # set values
+        _njd.NJDNode_set_string(node, feature_node["string"].encode("utf-8"))
+        _njd.NJDNode_set_pos(node, feature_node["pos"].encode("utf-8"))
+        _njd.NJDNode_set_pos_group1(node, feature_node["pos_group1"].encode("utf-8"))
+        _njd.NJDNode_set_pos_group2(node, feature_node["pos_group2"].encode("utf-8"))
+        _njd.NJDNode_set_pos_group3(node, feature_node["pos_group3"].encode("utf-8"))
+        _njd.NJDNode_set_ctype(node, feature_node["ctype"].encode("utf-8"))
+        _njd.NJDNode_set_cform(node, feature_node["cform"].encode("utf-8"))
+        _njd.NJDNode_set_orig(node, feature_node["orig"].encode("utf-8"))
+        _njd.NJDNode_set_read(node, feature_node["read"].encode("utf-8"))
+        _njd.NJDNode_set_pron(node, feature_node["pron"].encode("utf-8"))
+        _njd.NJDNode_set_acc(node, feature_node["acc"])
+        _njd.NJDNode_set_mora_size(node, feature_node["mora_size"])
+        _njd.NJDNode_set_chain_rule(node, feature_node["chain_rule"].encode("utf-8"))
+        _njd.NJDNode_set_chain_flag(node, feature_node["chain_flag"])
+        _njd.NJD_push_node(njd, node)
+
 cdef class OpenJTalk(object):
     """OpenJTalk
 
@@ -172,6 +195,41 @@ cdef class OpenJTalk(object):
         _njd.njd_set_pronunciation(self.njd)
         _njd.njd_set_digit(self.njd)
         _njd.njd_set_accent_phrase(self.njd)
+        _njd.njd_set_accent_type(self.njd)
+        _njd.njd_set_unvoiced_vowel(self.njd)
+        _njd.njd_set_long_vowel(self.njd)
+        features = njd2feature(self.njd)
+
+        # Note that this will release memory for njd feature
+        NJD_refresh(self.njd)
+        Mecab_refresh(self.mecab)
+
+        return features
+
+    def get_njd_features_inter1(self, text):
+        """Get NJD features without applying rules of setting accent phrase boundary
+        """
+        cdef char buff[8192]
+
+        if isinstance(text, str):
+            text = text.encode("utf-8")
+        text2mecab(buff, text)
+        Mecab_analysis(self.mecab, buff)
+        mecab2njd(self.njd, Mecab_get_feature(self.mecab), Mecab_get_size(self.mecab))
+        _njd.njd_set_pronunciation(self.njd)
+        _njd.njd_set_digit(self.njd)
+        features = njd2feature(self.njd)
+        
+        # Note that this will release memory for njd feature
+        NJD_refresh(self.njd)
+        Mecab_refresh(self.mecab)
+
+        return features
+
+    def put_njd_features_inter1(self, features):
+        """Applying the rest rules to the input njd features
+        """
+        feature2njd(self.njd, features)
         _njd.njd_set_accent_type(self.njd)
         _njd.njd_set_unvoiced_vowel(self.njd)
         _njd.njd_set_long_vowel(self.njd)

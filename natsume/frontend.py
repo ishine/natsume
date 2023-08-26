@@ -59,6 +59,16 @@ class Natsume(object):
         njd_features = self._oj.get_njd_features(text)
 
         return njd_features
+    
+    def get_njd_inter1(self, text):
+        njd_features = self._oj.get_njd_features_inter1(text)
+
+        return njd_features
+    
+    def put_njd_inter1(self, features):
+        njd_features = self._oj.put_njd_features_inter1(features)
+
+        return njd_features
 
     def set_dict_dir(self, dict_dir):
         # TODO: support mannualy setting dictionary directory
