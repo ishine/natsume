@@ -17,7 +17,7 @@ from setuptools import Extension, find_packages, setup
 
 # Reference: https://github.com/r9y9/pyopenjtalk/blob/master/setup.py
 
-version = "0.1.3"
+version = "0.2.0"
 min_cython_ver = "0.21.0"
 
 try:
