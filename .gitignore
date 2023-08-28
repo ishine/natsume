@@ -1,5 +1,6 @@
 # development
 main.py
+main.ipynb
 natsume/openjtalk.cpp
 natsume/version.py
 natsume/open_jtalk_dic_utf_8-1.11

@@ -139,7 +139,7 @@ class DictManager(object):
                 return self._dict_dir.encode("utf-8")
             elif dict_name is None:
                 # download naist-jdic as default dictionary
-                print("No dictionary available, download {}.".format(list(self._config["dict_urls"].keys())[0]))
+                print("No dictionary available, download naist-jdic.")
                 dict_name = "naist-jdic"
                 dict_dir = self.download_dict(dict_name)
         
@@ -162,8 +162,11 @@ class DictManager(object):
 
     @staticmethod
     def check_dict_dir(dict_dir):
+        if dict_dir is None:
+            dicdir = pkg_resources.resource_filename(__name__, GLOBAL_CONFIG["naist-jdic"])
         if os.path.exists(dict_dir) and os.path.isdir(dict_dir):
             return True
+    
         return False
     
     def download_dict(self, dict_name):

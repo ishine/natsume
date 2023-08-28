@@ -207,7 +207,13 @@ def merge_njd_marine_features(njd_features, marine_results):
                 _feature[feature_key] = int(marine_chain_flags[node_index])
             else:
                 _feature[feature_key] = njd_feature[feature_key]
+        
+        # FIXME: marine doesn't see 記号 as an single accent phrase
+        if _feature["pos"] == "記号":
+            _feature["chain_flag"] = 0
+        print(_feature)
         features.append(_feature)
+
     return features
 
 class MecabFeature(object):
