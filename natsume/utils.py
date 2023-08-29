@@ -3,7 +3,7 @@ import warnings
 from natsume.mappings import (
     kana_to_romaji, kana_to_ipa, new_to_old, small_to_normal,
     hira_to_kata, kata_to_manyou, vowels_romaji, vowels_ipa
-)
+) 
 
 def features_to_tokens(features, mode="word"):
     """MeCab or NJD features to tokens
